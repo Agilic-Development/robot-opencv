@@ -31,10 +31,6 @@ if __name__ == "__main__":
 
 
     while True:
-        key = cv2.waitKey(10)
-        #check if face cascade should be changed
-        if key > 0
-            face_cascade = cascade_choice(key)
 
         bot.update()
         # Get an image from the robot
@@ -46,19 +42,47 @@ if __name__ == "__main__":
         im_gray = cv2.cvtColor(im_flip, cv2.COLOR_BGR2GRAY)
 
         faces = face_cascade.detectMultiScale(im_gray, 1.3, 5)
-
+        faces_center=[]
         for (x,y,w,h) in faces:
             cv2.rectangle(im_flip,(x,y),(x+w,y+h),(255,0,0),2)
+            #find center point
+            faces_center.append(x+(w/2))
+            faces_center.append(y+(w/2))
+            cv2.circle(im_flip,(faces_center[0],faces_center[1]),2,(255,0,0),2)
+        
+        #find image dimensions
+        im_width, im_height = im_gray.shape[:2]
+
+        #check if faces_center has anything in it
+        if faces_center:
+            #follow face
+            if im_width/2 > faces_center[0]:
+                print "go left"
+
+            if im_width/2 < faces_center[0]:
+                print "go right"
+
+            if im_height/2 > faces_center[0]:
+                print "go up"
+
+            if im_height/2 < faces_center[0]:
+                print "go down"
+
         # Display the image
         cv2.imshow( "Image", im_flip )
 
         #check if user presses a key
         key = cv2.waitKey( 10 )
-
         if key > 0:
-            # Disconnect from the robot
-            bot.disconnect()
-            exit(0)
+            print key
+            if key == 1113937:
+                bot.set_motor_speeds(-80.0,80.0)
+            #face_cascade = cascade_choice(key)
+            #bot.set_motor_speeds(-80.0,80.0) #spin left
+            if key == 1048603:
+                # Disconnect from the robot
+                bot.disconnect()
+                exit(0)
 
 def cascade_choice(choice = 1):
     if choice == 1:
@@ -77,3 +101,5 @@ def cascade_choice(choice = 1):
         face_cascade = cv2.CascadeClassifier('cascade_resources/')
     if choice == 8:
         face_cascade = cv2.CascadeClassifier('cascade_resources/')
+    else:
+        print "invalid cascade selection"
