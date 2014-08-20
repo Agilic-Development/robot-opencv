@@ -36,56 +36,56 @@ if __name__ == "__main__":
     #turn the array into a cv2 image
     im = cv2.imdecode(data, 1)
 
-    #while True:
+    while True:
 
         #flip the video as the camera is upside down
-    im_flip = cv2.flip(im, flipCode = 0)
+        im_flip = cv2.flip(im, flipCode = 0)
 
-    # Convert to grayscale
-    im_gray = cv2.cvtColor(im_flip, cv2.COLOR_BGR2GRAY)
+        # Convert to grayscale
+        im_gray = cv2.cvtColor(im_flip, cv2.COLOR_BGR2GRAY)
 
-    faces = face_cascade.detectMultiScale(im_gray, 1.3, 5)
-    faces_center=[]
-    for (x,y,w,h) in faces:
-        cv2.rectangle(im_flip,(x,y),(x+w,y+h),(255,0,0),2)
-        #find center point
-        faces_center.append(x+(w/2))
-        faces_center.append(y+(w/2))
-        cv2.circle(im_flip,(faces_center[0],faces_center[1]),2,(255,0,0),2)
-    
-    #find image dimensions
-    im_width, im_height = im_gray.shape[:2]
+        faces = face_cascade.detectMultiScale(im_gray, 1.3, 5)
+        faces_center=[]
+        for (x,y,w,h) in faces:
+            cv2.rectangle(im_flip,(x,y),(x+w,y+h),(255,0,0),2)
+            #find center point
+            faces_center.append(x+(w/2))
+            faces_center.append(y+(w/2))
+            cv2.circle(im_flip,(faces_center[0],faces_center[1]),2,(255,0,0),2)
+        
+        #find image dimensions
+        im_width, im_height = im_gray.shape[:2]
 
-    #check if faces_center has anything in it
-    if faces_center:
-        #follow face
-        if im_width/2 > faces_center[0]:
-            print "go left"
+        #check if faces_center has anything in it
+        if faces_center:
+            #follow face
+            if im_width/2 > faces_center[0]:
+                print "go left"
 
-        if im_width/2 < faces_center[0]:
-            print "go right"
+            if im_width/2 < faces_center[0]:
+                print "go right"
 
-        if im_height/2 > faces_center[0]:
-            print "go up"
+            if im_height/2 > faces_center[0]:
+                print "go up"
 
-        if im_height/2 < faces_center[0]:
-            print "go down"
+            if im_height/2 < faces_center[0]:
+                print "go down"
 
-    # Display the image
-    cv2.imshow( "Image", im_flip )
+        # Display the image
+        cv2.imshow( "Image", im_flip )
 
-    #check if user presses a key
-    key = cv2.waitKey( 10 )
-    if key > 0:
-        print key
-        if key == 1113937:
-            bot.set_motor_speeds(-80.0,80.0)
-        #face_cascade = cascade_choice(key)
-        #bot.set_motor_speeds(-80.0,80.0) #spin left
-        if key == 1048603:
-            # Disconnect from the robot
-            bot.disconnect()
-            exit(0)
+        #check if user presses a key
+        key = cv2.waitKey()
+        if key > 0:
+            print key
+            if key == 1113937:
+                bot.set_motor_speeds(-80.0,80.0)
+            #face_cascade = cascade_choice(key)
+            #bot.set_motor_speeds(-80.0,80.0) #spin left
+            if key == 1048603:
+                # Disconnect from the robot
+                bot.disconnect()
+                exit(0)
 
 def cascade_choice(choice = 1):
     if choice == 1:
