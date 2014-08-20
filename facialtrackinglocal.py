@@ -8,7 +8,7 @@
 import time
 import argparse
 import cv2
-import py_websockets_bot
+#import py_websockets_bot
 import numpy as np
 import picamera
 import io
