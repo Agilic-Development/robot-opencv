@@ -29,11 +29,14 @@ if __name__ == "__main__":
     #select cascade library
     face_cascade = cv2.CascadeClassifier('cascade_resources/haarcascade_frontalface_alt.xml')
 
+    left_motor = 0
+    right_motor = 0
+    camera_pan = 90
+    camera_tilt = 90
 
     while True:
-
         bot.update()
-        # Get an image from the robot
+        # Get an image from the robot, returns the image and a time stamp
         im, im_time = bot.get_latest_camera_image()
         #flip the video as the camera is upside down
         im_flip = cv2.flip(im, flipCode = 0)
@@ -53,24 +56,31 @@ if __name__ == "__main__":
         #find image dimensions
         im_width, im_height = im_gray.shape[:2]
 
+
         #check if faces_center has anything in it
         if faces_center:
             #follow face
             if im_width/2 > faces_center[0]:
                 print "go left"
-                bot.set_motor_speeds(100,-100)
+                left_motor = 100
+                right_motor = -100
 
             if im_width/2 < faces_center[0]:
                 print "go right"
-                bot.set_motor_speeds(-100,100)
+                left_motor = 100
+                right_motor = -100
 
-            if im_height/2 > faces_center[0]:
+            if im_height/2 > faces_center[1]:
                 print "go up"
 
-            if im_height/2 < faces_center[0]:
+            if im_height/2 < faces_center[1]:
                 print "go down"
+        else:
+            left_motor = 0
+            right_motor = 0
 
-        bot.set_motor_speeds(0,0)
+        left_motor, right_motor, camera_pan, camera_tilt = offset_to_movement(x_offset, y_offset)
+        send_motor_commands(left_motor, right_motor, camera_pan, camera_tilt)
         # Display the image
         cv2.imshow( "Image", im_flip )
 
@@ -86,6 +96,14 @@ if __name__ == "__main__":
                 # Disconnect from the robot
                 bot.disconnect()
                 exit(0)
+
+def offset_to_movement(x_offset, y_offset):
+
+    return left_motor, right_motor, camera_pan, camera_tilt
+
+def send_motor_commands(left_motor, right_motor, camera_pan, camera_tilt):
+    bot.set_neck_angles(camera_pan,camera_tilt)
+    bot.set_motor_speeds(left_motor,right_motor)
 
 def cascade_choice(choice = 1):
     if choice == 1:
