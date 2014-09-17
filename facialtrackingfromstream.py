@@ -58,9 +58,11 @@ if __name__ == "__main__":
             #follow face
             if im_width/2 > faces_center[0]:
                 print "go left"
+                bot.set_motor_speeds(100,-100)
 
             if im_width/2 < faces_center[0]:
                 print "go right"
+                bot.set_motor_speeds(-100,100)
 
             if im_height/2 > faces_center[0]:
                 print "go up"
@@ -68,6 +70,7 @@ if __name__ == "__main__":
             if im_height/2 < faces_center[0]:
                 print "go down"
 
+        bot.set_motor_speeds(0,0)
         # Display the image
         cv2.imshow( "Image", im_flip )
 
