@@ -10,7 +10,7 @@ import py_websockets_bot
 import numpy as np
 
 #---------------------------------------------------------------------------------------------------        
-if __name__ == "__main__":
+def main():
 
     video_source = cv2.VideoCapture(0)
 
@@ -29,10 +29,10 @@ if __name__ == "__main__":
     #select cascade library
     face_cascade = cv2.CascadeClassifier('cascade_resources/haarcascade_frontalface_alt.xml')
 
-    left_motor = 0
-    right_motor = 0
-    camera_pan = 90
-    camera_tilt = 90
+    x_offset = 0
+    y_offset = 0
+    camera_pan_position = 90 #90 is the middle position
+    camera_tilt_position = 90 #90 is the middle position
 
     while True:
         bot.update()
@@ -61,49 +61,49 @@ if __name__ == "__main__":
         if faces_center:
             #follow face
             if im_width/2 > faces_center[0]:
-                print "go left"
-                left_motor = 100
-                right_motor = -100
+                x_offset = 1
 
             if im_width/2 < faces_center[0]:
-                print "go right"
-                left_motor = 100
-                right_motor = -100
+                x_offset = -1
 
             if im_height/2 > faces_center[1]:
-                print "go up"
+                y_offset = 1
 
             if im_height/2 < faces_center[1]:
-                print "go down"
+                y_offset = -1
         else:
-            left_motor = 0
-            right_motor = 0
+            x_offset, y_offset = 0, 0
 
-        left_motor, right_motor, camera_pan, camera_tilt = offset_to_movement(x_offset, y_offset)
-        send_motor_commands(left_motor, right_motor, camera_pan, camera_tilt)
+        left_motor, right_motor, camera_pan, camera_tilt = offset_to_movement(x_offset, y_offset, camera_pan_position, camera_tilt_position)
+        camera_pan_position, camera_tilt_position = send_motor_commands(bot, left_motor, right_motor, camera_pan, camera_tilt)
         # Display the image
         cv2.imshow( "Image", im_flip )
 
         #check if user presses a key
         key = cv2.waitKey( 10 )
-        if key > 0:
+        if key > 0: #the below key values may need to be adjusted to match your keyboard
             print key
             if key == 1113937:
                 bot.set_motor_speeds(-80.0,80.0)
             #face_cascade = cascade_choice(key)
             #bot.set_motor_speeds(-80.0,80.0) #spin left
-            if key == 1048603:
+            if key == 1048603: #esc
                 # Disconnect from the robot
                 bot.disconnect()
                 exit(0)
 
-def offset_to_movement(x_offset, y_offset):
+def offset_to_movement(x_offset, y_offset, camera_pan_position, camera_tilt_position):
+    left_motor, right_motor = x_offset * 100, x_offset * -100
+    camera_pan, camera_tilt = camera_pan_position, camera_tilt_position - y_offset
 
     return left_motor, right_motor, camera_pan, camera_tilt
 
-def send_motor_commands(left_motor, right_motor, camera_pan, camera_tilt):
+def send_motor_commands(bot, left_motor, right_motor, camera_pan, camera_tilt):
     bot.set_neck_angles(camera_pan,camera_tilt)
+    camera_pan_position, camera_tilt_position = camera_pan, camera_tilt #roughly keeps track of location, replace with encoder values when they are added to the robot
+
     bot.set_motor_speeds(left_motor,right_motor)
+    return camera_pan_position, camera_tilt_position
 
 def cascade_choice(choice = 1):
     if choice == 1:
@@ -126,3 +126,5 @@ def cascade_choice(choice = 1):
         face_cascade = cv2.CascadeClassifier('cascade_resources/soft-cascade-17.12.2012.xml')
     else:
         print "invalid cascade selection"
+
+main()
