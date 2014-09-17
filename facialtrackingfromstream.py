@@ -91,18 +91,20 @@ def cascade_choice(choice = 1):
     if choice == 1:
         face_cascade = cv2.CascadeClassifier('cascade_resources/haarcascade_frontalface_alt.xml')
     if choice == 2:
-        face_cascade = cv2.CascadeClassifier('cascade_resources/')
+        face_cascade = cv2.CascadeClassifier('cascade_resources/haarcascade_eye.xml')
     if choice == 3:
-        face_cascade = cv2.CascadeClassifier('cascade_resources/')
+        face_cascade = cv2.CascadeClassifier('cascade_resources/haarcascade_smile.xml')
     if choice == 4:
-        face_cascade = cv2.CascadeClassifier('cascade_resources/')
+        face_cascade = cv2.CascadeClassifier('cascade_resources/lbpcascade_frontalface.xml')
     if choice == 5:
-        face_cascade = cv2.CascadeClassifier('cascade_resources/')
+        face_cascade = cv2.CascadeClassifier('cascade_resources/lbpcascade_profileface.xml')
     if choice == 6:
-        face_cascade = cv2.CascadeClassifier('cascade_resources/')
+        face_cascade = cv2.CascadeClassifier('cascade_resources/lbpcascade_silverware.xml')
     if choice == 7:
-        face_cascade = cv2.CascadeClassifier('cascade_resources/')
+        face_cascade = cv2.CascadeClassifier('cascade_resources/hogcascade_pedestrians.xml')
     if choice == 8:
-        face_cascade = cv2.CascadeClassifier('cascade_resources/')
+        face_cascade = cv2.CascadeClassifier('cascade_resources/inria_caltech-17.01.2013.xml')
+    if choice == 8:
+        face_cascade = cv2.CascadeClassifier('cascade_resources/soft-cascade-17.12.2012.xml')
     else:
         print "invalid cascade selection"
