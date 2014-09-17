@@ -29,8 +29,9 @@ def main():
     #select cascade library
     face_cascade = cv2.CascadeClassifier('cascade_resources/haarcascade_frontalface_alt.xml')
 
-    x_offset = 0
-    y_offset = 0
+    #find image dimensions
+    im_width, im_height = im_clean.shape[:2]
+
     camera_pan_position = 90 #90 is the middle position
     camera_tilt_position = 90 #90 is the middle position
 
@@ -38,46 +39,21 @@ def main():
         bot.update()
         # Get an image from the robot, returns the image and a time stamp
         im, im_time = bot.get_latest_camera_image()
-        #flip the video as the camera is upside down
-        im_flip = cv2.flip(im, flipCode = 0)
 
-        # Convert to grayscale
-        im_gray = cv2.cvtColor(im_flip, cv2.COLOR_BGR2GRAY)
+        im_clean = clean_input_image(im)
 
-        faces = face_cascade.detectMultiScale(im_gray, 1.3, 5)
-        faces_center=[]
-        for (x,y,w,h) in faces:
-            cv2.rectangle(im_flip,(x,y),(x+w,y+h),(255,0,0),2)
-            #find center point
-            faces_center.append(x+(w/2))
-            faces_center.append(y+(w/2))
-            cv2.circle(im_flip,(faces_center[0],faces_center[1]),2,(255,0,0),2)
+        im_reduced = remove_unneeded_information(im_clean)
+
+        faces_center, im_clean = find_face(im_reduced, im_clean) #im_clean is needed to adjust the laptop output
         
-        #find image dimensions
-        im_width, im_height = im_gray.shape[:2]
-
-
-        #check if faces_center has anything in it
-        if faces_center:
-            #follow face
-            if im_width/2 > faces_center[0]:
-                x_offset = 1
-
-            if im_width/2 < faces_center[0]:
-                x_offset = -1
-
-            if im_height/2 > faces_center[1]:
-                y_offset = 1
-
-            if im_height/2 < faces_center[1]:
-                y_offset = -1
-        else:
-            x_offset, y_offset = 0, 0
+        x_offset, y_offset = find_offsets(faces_center, im_width, im_height)
 
         left_motor, right_motor, camera_pan, camera_tilt = offset_to_movement(x_offset, y_offset, camera_pan_position, camera_tilt_position)
+
         camera_pan_position, camera_tilt_position = send_motor_commands(bot, left_motor, right_motor, camera_pan, camera_tilt)
+
         # Display the image
-        cv2.imshow( "Image", im_flip )
+        cv2.imshow( "Image", im_clean )
 
         #check if user presses a key
         key = cv2.waitKey( 10 )
@@ -91,6 +67,46 @@ def main():
                 # Disconnect from the robot
                 bot.disconnect()
                 exit(0)
+
+def clean_input_image(im):
+    #flip the video as the camera is upside down
+    im_flip = cv2.flip(im, flipCode = 0)
+    return im_flip
+
+def remove_unneeded_information(im_clean):
+    # Convert to grayscale
+    im_gray = cv2.cvtColor(im_clean, cv2.COLOR_BGR2GRAY)
+    return im_gray
+
+def find_face(im_reduced, im_clean):
+    faces = face_cascade.detectMultiScale(im_reduced, 1.3, 5)
+    faces_center=[]
+    for (x,y,w,h) in faces:
+        cv2.rectangle(im_clean,(x,y),(x+w,y+h),(255,0,0),2)
+        #find center point
+        faces_center.append(x+(w/2))
+        faces_center.append(y+(w/2))
+        cv2.circle(im_clean,(faces_center[0],faces_center[1]),2,(255,0,0),2)
+    return faces_center, im_clean
+
+def find_offsets(faces_center, im_width, im_height):
+    #check if faces_center has anything in it
+    if faces_center:
+        #follow face
+        if im_width/2 > faces_center[0]:
+            x_offset = 1
+
+        if im_width/2 < faces_center[0]:
+            x_offset = -1
+
+        if im_height/2 > faces_center[1]:
+            y_offset = 1
+
+        if im_height/2 < faces_center[1]:
+            y_offset = -1
+    else:
+        x_offset, y_offset = 0, 0
+    return x_offset, y_offset
 
 def offset_to_movement(x_offset, y_offset, camera_pan_position, camera_tilt_position):
     left_motor, right_motor = x_offset * 100, x_offset * -100
