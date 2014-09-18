@@ -56,7 +56,7 @@ def main():
 
         left_motor, right_motor, camera_pan, camera_tilt = offset_to_movement(x_offset, y_offset, camera_pan_position, camera_tilt_position)
 
-        camera_pan_position, camera_tilt_position = send_motor_commands(bot, left_motor, right_motor, camera_pan, camera_tilt)
+        #camera_pan_position, camera_tilt_position = send_motor_commands(bot, left_motor, right_motor, camera_pan, camera_tilt)
 
         # Display the image
         cv2.imshow( "Image", im_clean )
@@ -65,21 +65,23 @@ def main():
         key = cv2.waitKey( 10 )
         if key > 0: #the below key values may need to be adjusted to match your keyboard
             print key
-            if key == 1113937:
-                bot.set_motor_speeds(-80.0,80.0)
+            #if key == 1113937:
+                #bot.set_motor_speeds(-80.0,80.0)
             #face_cascade = cascade_choice(key)
             #bot.set_motor_speeds(-80.0,80.0) #spin left
-            if key == 1048603 or 27: #esc
+
+            if key == 1048603: #esc
                 # Disconnect from the robot
                 bot.disconnect()
                 exit(0)
-            if key == 1113937 or 65361: #left
+
+            if key == 1113937: #left
                 bot.set_motor_speeds(-100,100)
-            if key == 1113938 or 65362: #up
+            if key == 1113938: #up
                 bot.set_motor_speeds(100,100)
-            if key == 1113939 or 65363: #right
+            if key == 1113939: #right
                 bot.set_motor_speeds(100,-100)
-            if key == 1113940 or 65364: #down
+            if key == 1113940: #down
                 bot.set_motor_speeds(-100,-100)
 
 def clean_input_image(im):
@@ -104,6 +106,7 @@ def find_face(im_reduced, im_clean, face_cascade):
     return faces_center, im_clean
 
 def find_offsets(faces_center, im_width, im_height):
+    x_offset, y_offset = 0, 0
     #check if faces_center has anything in it
     if faces_center:
         #follow face
@@ -118,8 +121,6 @@ def find_offsets(faces_center, im_width, im_height):
 
         if im_height/2 < faces_center[1]:
             y_offset = -1
-    else:
-        x_offset, y_offset = 0, 0
     return x_offset, y_offset
 
 def offset_to_movement(x_offset, y_offset, camera_pan_position, camera_tilt_position):
