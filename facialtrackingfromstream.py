@@ -29,6 +29,12 @@ def main():
     #select cascade library
     face_cascade = cv2.CascadeClassifier('cascade_resources/haarcascade_frontalface_alt.xml')
 
+    bot.update()
+    # Get an image from the robot, returns the image and a time stamp
+    im, im_time = bot.get_latest_camera_image()
+
+    im_clean = clean_input_image(im)
+
     #find image dimensions
     im_width, im_height = im_clean.shape[:2]
 
@@ -44,7 +50,7 @@ def main():
 
         im_reduced = remove_unneeded_information(im_clean)
 
-        faces_center, im_clean = find_face(im_reduced, im_clean) #im_clean is needed to adjust the laptop output
+        faces_center, im_clean = find_face(im_reduced, im_clean, face_cascade) #im_clean is needed to adjust the laptop output
         
         x_offset, y_offset = find_offsets(faces_center, im_width, im_height)
 
@@ -63,10 +69,18 @@ def main():
                 bot.set_motor_speeds(-80.0,80.0)
             #face_cascade = cascade_choice(key)
             #bot.set_motor_speeds(-80.0,80.0) #spin left
-            if key == 1048603: #esc
+            if key == 1048603 or 27: #esc
                 # Disconnect from the robot
                 bot.disconnect()
                 exit(0)
+            if key == 1113937 or 65361: #left
+                bot.set_motor_speeds(-100,100)
+            if key == 1113938 or 65362: #up
+                bot.set_motor_speeds(100,100)
+            if key == 1113939 or 65363: #right
+                bot.set_motor_speeds(100,-100)
+            if key == 1113940 or 65364: #down
+                bot.set_motor_speeds(-100,-100)
 
 def clean_input_image(im):
     #flip the video as the camera is upside down
@@ -78,7 +92,7 @@ def remove_unneeded_information(im_clean):
     im_gray = cv2.cvtColor(im_clean, cv2.COLOR_BGR2GRAY)
     return im_gray
 
-def find_face(im_reduced, im_clean):
+def find_face(im_reduced, im_clean, face_cascade):
     faces = face_cascade.detectMultiScale(im_reduced, 1.3, 5)
     faces_center=[]
     for (x,y,w,h) in faces:
