@@ -37,7 +37,12 @@ if __name__ == "__main__":
     im = cv2.imdecode(data, 1)
 
     while True:
-
+        camera.capture(stream, format='jpeg')
+        #convert image into numpy array
+        data = np.fromstring(stream.getvalue(), dtype=np.uint8)
+        #turn the array into a cv2 image
+        im = cv2.imdecode(data, 1)
+        
         #flip the video as the camera is upside down
         im_flip = cv2.flip(im, flipCode = 0)
 
